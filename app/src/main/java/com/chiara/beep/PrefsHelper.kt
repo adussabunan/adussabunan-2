@@ -21,21 +21,18 @@ class PrefsHelper(context: Context) {
         const val KEY_DND_RESPECT   = "dnd_respect"
         const val KEY_SERVICE_ON    = "service_on"
 
-        // Color options
-        const val COLOR_GREEN  = "green"
-        const val COLOR_AMBER  = "amber"
-        const val COLOR_BLUE   = "blue"
-        const val COLOR_RED    = "red"
+        const val COLOR_GREEN = "green"
+        const val COLOR_AMBER = "amber"
+        const val COLOR_BLUE  = "blue"
+        const val COLOR_RED   = "red"
 
-        // Frequency options (Hz)
-        const val FREQ_LOW    = 800
-        const val FREQ_MID    = 1800
-        const val FREQ_HIGH   = 3000
+        const val FREQ_LOW  = 800
+        const val FREQ_MID  = 1800
+        const val FREQ_HIGH = 3000
 
-        // Duration options (ms)
-        const val DUR_SHORT   = 50
-        const val DUR_MID     = 100
-        const val DUR_LONG    = 200
+        const val DUR_SHORT = 50
+        const val DUR_MID   = 100
+        const val DUR_LONG  = 200
     }
 
     var color: String
@@ -66,7 +63,6 @@ class PrefsHelper(context: Context) {
         get() = prefs.getBoolean(KEY_SILENT_ON, false)
         set(v) = prefs.edit().putBoolean(KEY_SILENT_ON, v).apply()
 
-    // Format "HH:MM"
     var silentStart: String
         get() = prefs.getString(KEY_SILENT_START, "22:00") ?: "22:00"
         set(v) = prefs.edit().putString(KEY_SILENT_START, v).apply()
@@ -83,6 +79,7 @@ class PrefsHelper(context: Context) {
         get() = prefs.getBoolean(KEY_SERVICE_ON, false)
         set(v) = prefs.edit().putBoolean(KEY_SERVICE_ON, v).apply()
 
+    // Warna utama (bright)
     fun getColorHex(): String = when (color) {
         COLOR_AMBER -> "#FFAA00"
         COLOR_BLUE  -> "#00AAFF"
@@ -90,10 +87,27 @@ class PrefsHelper(context: Context) {
         else        -> "#00FF41"
     }
 
+    // Warna redup untuk elemen sekunder
     fun getColorDimHex(): String = when (color) {
         COLOR_AMBER -> "#CC7700"
         COLOR_BLUE  -> "#0077CC"
         COLOR_RED   -> "#CC1111"
         else        -> "#00B82E"
+    }
+
+    // Warna sangat redup untuk label/judul
+    fun getColorFaintHex(): String = when (color) {
+        COLOR_AMBER -> "#664400"
+        COLOR_BLUE  -> "#003366"
+        COLOR_RED   -> "#660000"
+        else        -> "#005A1A"
+    }
+
+    // Warna background tombol sekunder
+    fun getColorBgHex(): String = when (color) {
+        COLOR_AMBER -> "#1A0D00"
+        COLOR_BLUE  -> "#001A33"
+        COLOR_RED   -> "#1A0000"
+        else        -> "#001A07"
     }
 }
