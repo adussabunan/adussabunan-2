@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -17,7 +18,7 @@ class ReminderActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityReminderBinding
     private lateinit var prefs: PrefsHelper
-    private val reminders = mutableListOf<String>() // format "HH:MM"
+    private val reminders = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +31,13 @@ class ReminderActivity : AppCompatActivity() {
         prefs = PrefsHelper(this)
         binding = ActivityReminderBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        ColorApplier.apply(binding.root as ViewGroup, prefs)
+
+        // Tombol hapus selalu merah
+        binding.btnClearAll.setTextColor(android.graphics.Color.parseColor("#FF3333"))
+        binding.btnClearAll.backgroundTintList =
+            android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#1A0000"))
 
         loadReminders()
 
@@ -59,12 +67,10 @@ class ReminderActivity : AppCompatActivity() {
     }
 
     private fun loadReminders() {
-        val sp = getSharedPreferences("chiara_reminders", Context.MODE_PRIVATE)
+        val sp  = getSharedPreferences("chiara_reminders", Context.MODE_PRIVATE)
         val raw = sp.getString("list", "") ?: ""
         reminders.clear()
-        if (raw.isNotEmpty()) {
-            reminders.addAll(raw.split(",").filter { it.isNotEmpty() })
-        }
+        if (raw.isNotEmpty()) reminders.addAll(raw.split(",").filter { it.isNotEmpty() })
         updateList()
     }
 
@@ -99,8 +105,8 @@ class ReminderActivity : AppCompatActivity() {
 
     private fun cancelAlarm(time: String) {
         val idx = reminders.indexOf(time)
-        val am = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val pi = PendingIntent.getBroadcast(
+        val am  = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val pi  = PendingIntent.getBroadcast(
             this, idx + 100,
             Intent(this, ReminderReceiver::class.java),
             PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
