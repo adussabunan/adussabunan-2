@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp">
+
+    <TextView
+        android:text="CHIARA'S BEEP"
+        android:textColor="#005A1A"
+        android:textSize="10sp"
+        android:letterSpacing="0.4"
+        android:fontFamily="monospace"
+        android:layout_marginBottom="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView android:id="@+id/tvHour"
+            android:text="00" android:textSize="72sp"
+            android:fontFamily="monospace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView android:id="@+id/tvColon1"
+            android:text=":" android:textSize="72sp"
+            android:fontFamily="monospace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView android:id="@+id/tvMinute"
+            android:text="00" android:textSize="72sp"
+            android:fontFamily="monospace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView android:id="@+id/tvColon2"
+            android:text=":" android:textSize="72sp"
+            android:fontFamily="monospace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView android:id="@+id/tvSecond"
+            android:text="00" android:textSize="72sp"
+            android:fontFamily="monospace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    <ProgressBar android:id="@+id/progressSeconds"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="280dp" android:layout_height="3dp"
+        android:max="100" android:progress="0"
+        android:progressBackgroundTint="#003A0E"
+        android:layout_marginTop="10dp"/>
+
+    <TextView android:id="@+id/tvDate"
+        android:text="--- -- --- ----"
+        android:textSize="11sp"
+        android:letterSpacing="0.25"
+        android:fontFamily="monospace"
+        android:layout_marginTop="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <View android:layout_width="200dp" android:layout_height="1dp"
+        android:background="#001A07"
+        android:layout_marginTop="32dp" android:layout_marginBottom="24dp"/>
+
+    <TextView android:id="@+id/tvStatus"
+        android:text="○ BEEP SERVICE: OFF"
+        android:textSize="10sp"
+        android:fontFamily="monospace"
+        android:layout_marginBottom="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <Button android:id="@+id/btnStart"
+        android:text="START"
+        android:textColor="#000000"
+        android:backgroundTint="#00FF41"
+        android:fontFamily="monospace"
+        android:layout_width="200dp" android:layout_height="44dp"
+        android:layout_marginBottom="10dp"/>
+
+    <Button android:id="@+id/btnStop"
+        android:text="STOP"
+        android:textColor="#FF3333"
+        android:backgroundTint="#1A0000"
+        android:fontFamily="monospace"
+        android:enabled="false"
+        android:layout_width="200dp" android:layout_height="44dp"
+        android:layout_marginBottom="24dp"/>
+
+    <LinearLayout android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button android:id="@+id/btnSettings"
+            android:text="SETTINGS"
+            android:textColor="#00B82E"
+            android:backgroundTint="#001A07"
+            android:fontFamily="monospace"
+            android:textSize="11sp"
+            android:layout_width="140dp" android:layout_height="40dp"
+            android:layout_marginEnd="10dp"/>
+
+        <Button android:id="@+id/btnReminder"
+            android:text="REMINDER"
+            android:textColor="#00B82E"
+            android:backgroundTint="#001A07"
+            android:fontFamily="monospace"
+            android:textSize="11sp"
+            android:layout_width="140dp" android:layout_height="40dp"/>
+    </LinearLayout>
+
+</LinearLayout>
