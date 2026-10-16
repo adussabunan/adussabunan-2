@@ -3,7 +3,6 @@ package com.chiara.beep
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -11,6 +10,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -62,11 +62,9 @@ class MainActivity : AppCompatActivity() {
 
         createNotificationChannel()
         requestPermissions()
-        applyColor()
-        updateServiceButtons()
 
-        binding.btnStart.setOnClickListener { startBeepService() }
-        binding.btnStop.setOnClickListener  { stopBeepService() }
+        binding.btnStart.setOnClickListener    { startBeepService() }
+        binding.btnStop.setOnClickListener     { stopBeepService() }
         binding.btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
@@ -90,20 +88,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun applyColor() {
-        val hex    = prefs.getColorHex()
-        val dimHex = prefs.getColorDimHex()
-        val c      = Color.parseColor(hex)
-        val cd     = Color.parseColor(dimHex)
-
-        binding.tvHour.setTextColor(c)
-        binding.tvColon1.setTextColor(c)
-        binding.tvMinute.setTextColor(c)
-        binding.tvColon2.setTextColor(c)
-        binding.tvSecond.setTextColor(cd)
-        binding.tvDate.setTextColor(cd)
-        binding.tvStatus.setTextColor(cd)
-        binding.progressSeconds.progressTintList =
-            android.content.res.ColorStateList.valueOf(c)
+        ColorApplier.apply(binding.root as ViewGroup, prefs)
+        // Tombol STOP selalu merah
+        binding.btnStop.setTextColor(android.graphics.Color.parseColor("#FF3333"))
+        binding.btnStop.backgroundTintList =
+            android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#1A0000"))
     }
 
     private fun updateClock() {
@@ -142,7 +131,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun stopBeepService() {
-        stopService(Intent(this, BeepService::class.java))
+        val intent = Intent(this, BeepService::class.java).apply {
+            action = BeepService.ACTION_STOP
+        }
+        startService(intent)
         prefs.serviceOn = false
         updateServiceButtons()
     }
@@ -151,7 +143,7 @@ class MainActivity : AppCompatActivity() {
         val running = BeepService.isRunning
         binding.btnStart.isEnabled = !running
         binding.btnStop.isEnabled  = running
-        binding.tvStatus.text = if (running) "● BEEP SERVICE: ON" else "○ BEEP SERVICE: OFF"
+        binding.tvStatus.text = if (running) "● SERVICE: ON" else "○ SERVICE: OFF"
     }
 
     private fun requestBatteryOptimization() {
@@ -159,13 +151,14 @@ class MainActivity : AppCompatActivity() {
             val pm = getSystemService(android.os.PowerManager::class.java)
             if (!pm.isIgnoringBatteryOptimizations(packageName)) {
                 try {
-                    val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                        data = Uri.parse("package:$packageName")
-                    }
-                    startActivity(intent)
+                    startActivity(
+                        Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                            data = Uri.parse("package:$packageName")
+                        }
+                    )
                 } catch (e: Exception) {
                     Toast.makeText(this,
-                        "Buka Settings → Battery → Chiara's Beep → No restrictions",
+                        "Settings → Battery → Chiara → No restrictions",
                         Toast.LENGTH_LONG).show()
                 }
             }
@@ -176,14 +169,14 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 BeepService.CHANNEL_ID,
-                "Chiara's Beep Service",
+                "Chiara",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
                 description = "Keeps beep running in background"
                 setSound(null, null)
             }
-            val nm = getSystemService(NotificationManager::class.java)
-            nm.createNotificationChannel(channel)
+            getSystemService(NotificationManager::class.java)
+                .createNotificationChannel(channel)
         }
     }
 
