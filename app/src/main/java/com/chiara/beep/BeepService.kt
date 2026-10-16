@@ -1,5 +1,6 @@
 package com.chiara.beep
 
+import android.app.AlarmManager
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -14,6 +15,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
+import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import java.util.Calendar
 import kotlin.math.sin
@@ -23,6 +25,8 @@ class BeepService : Service() {
     companion object {
         const val CHANNEL_ID      = "chiara_beep_channel"
         const val NOTIFICATION_ID = 1
+        const val ACTION_STOP     = "ACTION_STOP"
+        const val ACTION_REMINDER = "ACTION_REMINDER"
         var isRunning = false
     }
 
@@ -30,18 +34,37 @@ class BeepService : Service() {
     private var lastBeepMinute = -1
     private lateinit var prefs: PrefsHelper
     private var wakeLock: PowerManager.WakeLock? = null
+    private lateinit var notificationManager: NotificationManager
 
-    private val checkRunnable = object : Runnable {
+    // Tick setiap 10 detik: update notifikasi jam live + cek beep
+    private val tickRunnable = object : Runnable {
         override fun run() {
+            updateLiveNotification()
             val cal = Calendar.getInstance()
             val currentMinute = cal.get(Calendar.MINUTE)
             val currentSecond = cal.get(Calendar.SECOND)
-
             if (currentSecond == 0 && currentMinute != lastBeepMinute) {
                 lastBeepMinute = currentMinute
                 if (shouldBeep(cal)) {
                     Thread { playBeeps() }.start()
                 }
+            }
+            handler.postDelayed(this, 10_000)
+        }
+    }
+
+    // Tick cepat setiap 500ms hanya untuk deteksi pergantian menit
+    private val beepCheckRunnable = object : Runnable {
+        override fun run() {
+            val cal = Calendar.getInstance()
+            val currentMinute = cal.get(Calendar.MINUTE)
+            val currentSecond = cal.get(Calendar.SECOND)
+            if (currentSecond == 0 && currentMinute != lastBeepMinute) {
+                lastBeepMinute = currentMinute
+                if (shouldBeep(cal)) {
+                    Thread { playBeeps() }.start()
+                }
+                updateLiveNotification()
             }
             handler.postDelayed(this, 500)
         }
@@ -51,54 +74,67 @@ class BeepService : Service() {
         super.onCreate()
         isRunning = true
         prefs = PrefsHelper(this)
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // WakeLock agar service tidak dimatikan saat layar mati
         val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = pm.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
-            "ChiaraBeep::BeepWakeLock"
-        ).also { it.acquire(10 * 60 * 60 * 1000L) } // max 10 jam
+            "Chiara::BeepWakeLock"
+        ).also { it.acquire(10 * 60 * 60 * 1000L) }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            ACTION_STOP -> {
+                prefs.serviceOn = false
+                stopSelf()
+                return START_NOT_STICKY
+            }
+            ACTION_REMINDER -> {
+                Thread { playBeeps() }.start()
+                return START_NOT_STICKY
+            }
+        }
         startForeground(NOTIFICATION_ID, buildNotification())
-        handler.post(checkRunnable)
+        handler.post(beepCheckRunnable)
+        handler.post(tickRunnable)
         return START_STICKY
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
-        // Restart service jika di-swipe dari recent apps
         val restartIntent = Intent(applicationContext, BeepService::class.java)
-        val pendingIntent = PendingIntent.getService(
+        val pi = PendingIntent.getService(
             applicationContext, 1, restartIntent,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
-        alarmManager.set(
-            android.app.AlarmManager.ELAPSED_REALTIME,
-            android.os.SystemClock.elapsedRealtime() + 1000,
-            pendingIntent
-        )
+        val am = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        am.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 1000, pi)
         super.onTaskRemoved(rootIntent)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        handler.removeCallbacks(checkRunnable)
+        handler.removeCallbacks(beepCheckRunnable)
+        handler.removeCallbacks(tickRunnable)
         wakeLock?.release()
         isRunning = false
-        prefs.serviceOn = false
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+    // Update notifikasi dengan jam saat ini
+    private fun updateLiveNotification() {
+        val cal = Calendar.getInstance()
+        val h   = cal.get(Calendar.HOUR_OF_DAY)
+        val m   = cal.get(Calendar.MINUTE)
+        val timeStr = "${pad(h)}:${pad(m)}"
+        notificationManager.notify(NOTIFICATION_ID, buildNotification(timeStr))
+    }
+
     private fun shouldBeep(cal: Calendar): Boolean {
-        // Cek DND
         if (prefs.dndRespect) {
             val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            if (!nm.isNotificationPolicyAccessGranted) {
-                // Tidak punya akses policy, skip cek DND
-            } else {
+            if (nm.isNotificationPolicyAccessGranted) {
                 val filter = nm.currentInterruptionFilter
                 if (filter == NotificationManager.INTERRUPTION_FILTER_NONE ||
                     filter == NotificationManager.INTERRUPTION_FILTER_ALARMS) {
@@ -107,18 +143,15 @@ class BeepService : Service() {
             }
         }
 
-        // Cek silent hours
         if (prefs.silentOn) {
             val nowH = cal.get(Calendar.HOUR_OF_DAY)
             val nowM = cal.get(Calendar.MINUTE)
-            val nowTotal = nowH * 60 + nowM
-
-            val (startH, startM) = prefs.silentStart.split(":").map { it.toInt() }
-            val (endH, endM)     = prefs.silentEnd.split(":").map { it.toInt() }
-            val startTotal = startH * 60 + startM
-            val endTotal   = endH * 60 + endM
-
-            val inSilent = if (startTotal <= endTotal) {
+            val nowTotal   = nowH * 60 + nowM
+            val (sH, sM)   = prefs.silentStart.split(":").map { it.toInt() }
+            val (eH, eM)   = prefs.silentEnd.split(":").map { it.toInt() }
+            val startTotal = sH * 60 + sM
+            val endTotal   = eH * 60 + eM
+            val inSilent   = if (startTotal <= endTotal) {
                 nowTotal in startTotal until endTotal
             } else {
                 nowTotal >= startTotal || nowTotal < endTotal
@@ -129,11 +162,10 @@ class BeepService : Service() {
         return true
     }
 
-    private fun playBeeps() {
+    fun playBeeps() {
         val count    = prefs.beepCount
         val freq     = prefs.beepFreq.toDouble()
         val duration = prefs.beepDuration
-
         repeat(count) { i ->
             if (i > 0) Thread.sleep(90)
             playTone(freq, duration, 0.7f)
@@ -178,27 +210,32 @@ class BeepService : Service() {
         }
     }
 
-    private fun buildNotification(): Notification {
-        val pendingIntent = PendingIntent.getActivity(
+    private fun buildNotification(timeStr: String? = null): Notification {
+        val cal = Calendar.getInstance()
+        val h   = cal.get(Calendar.HOUR_OF_DAY)
+        val m   = cal.get(Calendar.MINUTE)
+        val displayTime = timeStr ?: "${pad(h)}:${pad(m)}"
+
+        val openIntent = PendingIntent.getActivity(
             this, 0,
             Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE
         )
         val stopIntent = PendingIntent.getService(
             this, 2,
-            Intent(this, BeepService::class.java).apply {
-                action = "STOP"
-            },
+            Intent(this, BeepService::class.java).apply { action = ACTION_STOP },
             PendingIntent.FLAG_IMMUTABLE
         )
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Chiara's Beep")
+            .setContentTitle("Chiara  •  $displayTime")
             .setContentText("Beeping every minute")
             .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(openIntent)
             .addAction(android.R.drawable.ic_delete, "Stop", stopIntent)
             .setOngoing(true)
             .setSilent(true)
             .build()
     }
+
+    private fun pad(n: Int) = n.toString().padStart(2, '0')
 }
