@@ -4,6 +4,10 @@ plugins {
 }
 
 android {
+
+    aaptOptions {
+    noCompress "png"
+}
     compileSdk 34
     namespace 'com.chiara.beep'
 
