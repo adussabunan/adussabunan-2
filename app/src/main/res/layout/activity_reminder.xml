@@ -1,48 +1,228 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#000000"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:background="#000000">
 
-    <TextView android:text="PENGINGAT CUSTOM"
-        android:textColor="#005A1A" android:textSize="10sp"
-        android:letterSpacing="0.4" android:fontFamily="monospace"
-        android:layout_marginBottom="24dp"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
 
-    <TextView android:text="Beep berbunyi pada jam tertentu setiap hari."
-        android:textColor="#005A1A" android:textSize="11sp"
-        android:fontFamily="monospace"
-        android:layout_marginBottom="24dp"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <TextView android:text="SETTINGS"
+            android:textSize="10sp" android:letterSpacing="0.4"
+            android:fontFamily="monospace" android:tag="label_faint"
+            android:layout_marginBottom="24dp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
-    <TextView android:id="@+id/tvReminderList"
-        android:text="Belum ada pengingat"
-        android:textColor="#00FF41" android:textSize="22sp"
-        android:fontFamily="monospace" android:lineSpacingMultiplier="1.6"
-        android:layout_weight="1"
-        android:layout_width="wrap_content" android:layout_height="0dp"/>
+        <!-- COLOR -->
+        <TextView android:text="WARNA"
+            android:textSize="10sp" android:letterSpacing="0.3"
+            android:fontFamily="monospace" android:tag="label_dim"
+            android:layout_marginBottom="8dp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
-    <Button android:id="@+id/btnAddReminder"
-        android:text="+ TAMBAH JAM"
-        android:textColor="#000000" android:backgroundTint="#00FF41"
-        android:fontFamily="monospace"
-        android:layout_width="match_parent" android:layout_height="48dp"
-        android:layout_marginBottom="10dp"/>
+        <RadioGroup android:id="@+id/rgColor"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content">
 
-    <Button android:id="@+id/btnClearAll"
-        android:text="HAPUS SEMUA"
-        android:textColor="#FF3333" android:backgroundTint="#1A0000"
-        android:fontFamily="monospace"
-        android:layout_width="match_parent" android:layout_height="44dp"
-        android:layout_marginBottom="10dp"/>
+            <RadioButton android:id="@+id/rbGreen" android:text="HIJAU"
+                android:textColor="#00FF41" android:fontFamily="monospace"
+                android:buttonTint="#00FF41" android:tag="no_color"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"/>
+            <RadioButton android:id="@+id/rbAmber" android:text="AMBER"
+                android:textColor="#FFAA00" android:fontFamily="monospace"
+                android:buttonTint="#FFAA00" android:tag="no_color"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"/>
+            <RadioButton android:id="@+id/rbBlue" android:text="BIRU"
+                android:textColor="#00AAFF" android:fontFamily="monospace"
+                android:buttonTint="#00AAFF" android:tag="no_color"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"/>
+            <RadioButton android:id="@+id/rbRed" android:text="MERAH"
+                android:textColor="#FF3333" android:fontFamily="monospace"
+                android:buttonTint="#FF3333" android:tag="no_color"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </RadioGroup>
 
-    <Button android:id="@+id/btnBack"
-        android:text="← KEMBALI"
-        android:textColor="#00FF41" android:backgroundTint="#001A07"
-        android:fontFamily="monospace"
-        android:layout_width="match_parent" android:layout_height="44dp"/>
+        <!-- BEEP COUNT -->
+        <TextView android:text="JUMLAH BEEP / MENIT"
+            android:textSize="10sp" android:letterSpacing="0.3"
+            android:fontFamily="monospace" android:tag="label_dim"
+            android:layout_marginBottom="8dp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
-</LinearLayout>
+        <RadioGroup android:id="@+id/rgBeepCount"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <RadioButton android:id="@+id/rb1x" android:text="1×"
+                android:fontFamily="monospace"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginEnd="24dp"/>
+            <RadioButton android:id="@+id/rb2x" android:text="2×"
+                android:fontFamily="monospace"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginEnd="24dp"/>
+            <RadioButton android:id="@+id/rb3x" android:text="3×"
+                android:fontFamily="monospace"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </RadioGroup>
+
+        <!-- FREQUENCY -->
+        <TextView android:text="FREKUENSI NADA"
+            android:textSize="10sp" android:letterSpacing="0.3"
+            android:fontFamily="monospace" android:tag="label_dim"
+            android:layout_marginBottom="8dp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+        <RadioGroup android:id="@+id/rgFreq"
+            android:orientation="horizontal"
+            android:layout_marginBottom="24dp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <RadioButton android:id="@+id/rbFreqLow" android:text="RENDAH"
+                android:fontFamily="monospace"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"/>
+            <RadioButton android:id="@+id/rbFreqMid" android:text="SEDANG"
+                android:fontFamily="monospace"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"/>
+            <RadioButton android:id="@+id/rbFreqHigh" android:text="TINGGI"
+                android:fontFamily="monospace"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </RadioGroup>
+
+        <!-- DURATION -->
+        <TextView android:text="DURASI BEEP"
+            android:textSize="10sp" android:letterSpacing="0.3"
+            android:fontFamily="monospace" android:tag="label_dim"
+            android:layout_marginBottom="8dp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+        <RadioGroup android:id="@+id/rgDuration"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <RadioButton android:id="@+id/rbDurShort" android:text="PENDEK"
+                android:fontFamily="monospace"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"/>
+            <RadioButton android:id="@+id/rbDurMid" android:text="SEDANG"
+                android:fontFamily="monospace"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"/>
+            <RadioButton android:id="@+id/rbDurLong" android:text="PANJANG"
+                android:fontFamily="monospace"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </RadioGroup>
+
+        <!-- TEST BEEP -->
+        <Button android:id="@+id/btnTestBeep"
+            android:text="▶  TEST BEEP"
+            android:fontFamily="monospace"
+            android:tag="btn_test"
+            android:layout_width="match_parent" android:layout_height="44dp"
+            android:layout_marginBottom="28dp"/>
+
+        <!-- DISPLAY -->
+        <TextView android:text="TAMPILAN"
+            android:textSize="10sp" android:letterSpacing="0.3"
+            android:fontFamily="monospace" android:tag="label_dim"
+            android:layout_marginBottom="8dp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:orientation="horizontal"
+            android:gravity="center_vertical" android:layout_marginBottom="12dp">
+            <TextView android:text="Tampilkan tanggal"
+                android:fontFamily="monospace" android:textSize="13sp"
+                android:layout_weight="1"
+                android:layout_width="0dp" android:layout_height="wrap_content"/>
+            <Switch android:id="@+id/swShowDate"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:orientation="horizontal"
+            android:gravity="center_vertical" android:layout_marginBottom="24dp">
+            <TextView android:text="Kedip titik dua"
+                android:fontFamily="monospace" android:textSize="13sp"
+                android:layout_weight="1"
+                android:layout_width="0dp" android:layout_height="wrap_content"/>
+            <Switch android:id="@+id/swBlinkColon"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- DND -->
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:orientation="horizontal"
+            android:gravity="center_vertical" android:layout_marginBottom="24dp">
+            <TextView android:text="Ikuti mode Do Not Disturb"
+                android:fontFamily="monospace" android:textSize="13sp"
+                android:layout_weight="1"
+                android:layout_width="0dp" android:layout_height="wrap_content"/>
+            <Switch android:id="@+id/swDnd"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <!-- SILENT HOURS -->
+        <TextView android:text="JAM HENING"
+            android:textSize="10sp" android:letterSpacing="0.3"
+            android:fontFamily="monospace" android:tag="label_dim"
+            android:layout_marginBottom="8dp"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+        <LinearLayout android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:orientation="horizontal"
+            android:gravity="center_vertical" android:layout_marginBottom="12dp">
+            <TextView android:text="Aktifkan jam hening"
+                android:fontFamily="monospace" android:textSize="13sp"
+                android:layout_weight="1"
+                android:layout_width="0dp" android:layout_height="wrap_content"/>
+            <Switch android:id="@+id/swSilent"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/layoutSilentTimes"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:layout_marginBottom="32dp" android:visibility="gone">
+
+            <TextView android:text="Dari"
+                android:fontFamily="monospace" android:textSize="12sp"
+                android:tag="label_faint"
+                android:layout_marginEnd="8dp"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+            <TextView android:id="@+id/tvSilentStart"
+                android:text="22:00"
+                android:fontFamily="monospace" android:textSize="18sp"
+                android:padding="8dp" android:tag="silent_time"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"/>
+
+            <TextView android:text="sampai"
+                android:fontFamily="monospace" android:textSize="12sp"
+                android:tag="label_faint"
+                android:layout_marginEnd="8dp"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+            <TextView android:id="@+id/tvSilentEnd"
+                android:text="06:00"
+                android:fontFamily="monospace" android:textSize="18sp"
+                android:padding="8dp" android:tag="silent_time"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <Button android:id="@+id/btnBack"
+            android:text="← KEMBALI"
+            android:fontFamily="monospace"
+            android:layout_width="match_parent" android:layout_height="48dp"/>
+
+    </LinearLayout>
+</ScrollView>
